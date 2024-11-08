@@ -6,37 +6,26 @@
   ></v-textarea>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      value: '',
-    };
-  },
-  methods: {
-    onInput() {
-      // Remove non-numeric characters and allow one decimal point and negative sign
-      let filteredValue = this.value.replace(/[^0-9.-]/g, '');
+<script setup>
+import { ref } from 'vue';
 
-      // Limit to one decimal point
-      const decimalIndex = filteredValue.indexOf('.');
-      if (decimalIndex !== -1) {
-        filteredValue = filteredValue.slice(0, decimalIndex + 1) + filteredValue.slice(decimalIndex + 1).replace(/\./g, '');
-      }
+// Declare a reactive variable `value` to bind to the v-textarea
+const value = ref('');
 
-      // Ensure only one negative sign, and it is at the beginning
-      if (filteredValue.indexOf('-') > 0) {
-        filteredValue = filteredValue.replace(/-/g, '').replace(/^/, '-');
-      }
+// Handle the input event to filter the value and limit the input to 8 characters
+const onInput = (event) => {
+  // Get the current value from the event
+  let inputValue = event.target.value;
 
-      // Limit the length to 8 characters
-      if (filteredValue.length > 8) {
-        filteredValue = filteredValue.slice(0, 8);
-      }
+  // Remove non-numeric characters
+  inputValue = inputValue.replace(/[^0-9]/g, '');
 
-      // Update the value
-      this.value = filteredValue;
-    },
-  },
+  // Limit to 8 characters
+  if (inputValue.length > 8) {
+    inputValue = inputValue.slice(0, 8);
+  }
+
+  // Update the reactive `value`
+  value.value = inputValue;
 };
 </script>
