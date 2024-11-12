@@ -105,3 +105,74 @@
 
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Picker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css">
+</head>
+<body>
+
+<label for="startDate">Start Date:</label>
+<input type="text" id="startDate">
+
+<label for="endDate">End Date:</label>
+<input type="text" id="endDate">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
+<script>
+// Initialize flatpickr
+document.addEventListener('DOMContentLoaded', function() {
+    // Get today's date and 1 week ago date
+    const today = new Date();
+    const oneWeekAgo = new Date(today);
+    oneWeekAgo.setDate(today.getDate() - 7);
+
+    // Set default values for the input fields
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    // Initialize startDate picker with default value (1 week ago)
+    flatpickr(startDateInput, {
+        defaultDate: oneWeekAgo,
+        onChange: function(selectedDates, dateStr, instance) {
+            const startDate = new Date(selectedDates[0]);
+            const endDate = new Date(endDateInput.value);
+
+            // Ensure startDate is at least 1 day before endDate
+            if (startDate >= endDate) {
+                endDateInput.value = formatDate(new Date(startDate.getTime() + 86400000)); // Add 1 day
+            }
+        }
+    });
+
+    // Initialize endDate picker with default value (today)
+    flatpickr(endDateInput, {
+        defaultDate: today,
+        onChange: function(selectedDates, dateStr, instance) {
+            const endDate = new Date(selectedDates[0]);
+            const startDate = new Date(startDateInput.value);
+
+            // Ensure endDate is at least 1 day after startDate
+            if (endDate <= startDate) {
+                startDateInput.value = formatDate(new Date(endDate.getTime() - 86400000)); // Subtract 1 day
+            }
+        }
+    });
+
+    // Function to format date to YYYY-MM-DD
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+});
+</script>
+
+</body>
+</html>
+
