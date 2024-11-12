@@ -1,83 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Virtual Scrolling List</title>
-  </head>
-  <body>
-    <div id="list-container" style="height: 400px; overflow-y: auto">
-      <ul id="item-list"></ul>
-    </div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Example</title>
+  <style>
+    /* Simple styling for the list and search input */
+    #search-input {
+      width: 200px;
+      padding: 8px;
+      margin-bottom: 20px;
+    }
+    #results {
+      margin-top: 20px;
+      list-style-type: none;
+      padding: 0;
+    }
+    #results li {
+      padding: 5px;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Search by Name or Email</h1>
+
+  <input type="text" id="search-input" placeholder="Search by name or email..." />
+  
+  <ul id="results"></ul>
 
   <script>
-    const data = Array.from({ length: 10000 }, (v, i) => ({
-      id: i,
-      name: `Item ${i + 1}`,
-      checked: false,
-    }));
-    console.log(data);
+    // Data to be validated and searched
+    const data = [
+      { name: 'John Doe', email: 'john@example.com' },
+      { name: 'Jane Smith', email: 'jane@example.com' },
+      { name: 'John Doe', email: 'john@example.com' }, // Duplicate
+      { name: '', email: 'invalid@example.com' }, // Invalid name
+      { name: 'Alice', email: 'bob@example.com' },
+      { name: 'John Doe', email: 'unique@example.com' }
+    ];
 
-    // This will store the IDs of checked items
-    const checkedItems = new Set();
+    // Step 1: Validate the data
+    function validateData(arr) {
+      const nameSet = new Set();
+      const emailSet = new Set();
+      const result = [];
+      let invalidCount = 0;
+      let duplicateCount = 0;
 
-    // Virtual scrolling settings
-    const listContainer = document.getElementById("list-container");
-    const itemList = document.getElementById("item-list");
-    const itemHeight = 30; // Height of each item (in pixels)
-    const buffer = 10; // Increased buffer to 10 for more items above/below
+      arr.forEach((item) => {
+        const { name, email } = item;
 
-    // Function to render visible items
-    function renderVisibleItems() {
-      const containerHeight = listContainer.offsetHeight;
-      const totalItems = data.length;
-      const visibleCount = Math.ceil(containerHeight / itemHeight) + buffer * 2;
-      const startIndex = Math.max(
-        0,
-        Math.floor(listContainer.scrollTop / itemHeight) - buffer
-      );
-      const endIndex = Math.min(totalItems, startIndex + visibleCount);
-
-      // Slice data based on calculated start and end index
-      const visibleItems = data.slice(startIndex, endIndex);
-
-      // Clear the current list
-      itemList.innerHTML = "";
-
-      // Render each visible item
-      visibleItems.forEach((item) => {
-        const listItem = document.createElement("li");
-        listItem.style.height = `${itemHeight}px`;
-        listItem.innerHTML = `
-          <input type="checkbox" data-id="${item.id}" ${
-          checkedItems.has(item.id) ? "checked" : ""
-        } />
-          ${item.name}
-        `;
-        itemList.appendChild(listItem);
+        if (!name || !email || typeof name !== 'string' || typeof email !== 'string') {
+          invalidCount++;
+        } else {
+          if (nameSet.has(name) || emailSet.has(email)) {
+            duplicateCount++;
+          } else {
+            nameSet.add(name);
+            emailSet.add(email);
+            result.push(item);
+          }
+        }
       });
+
+      return { result, invalidCount, duplicateCount };
     }
 
-    // Function to toggle checked state
-    function handleCheckboxChange(event) {
-      const itemId = parseInt(event.target.getAttribute("data-id"), 10);
-
-      if (event.target.checked) {
-        checkedItems.add(itemId);
-      } else {
-        checkedItems.delete(itemId);
+    // Step 2: Search function
+    function searchItems(validItems, searchTerm) {
+      if (searchTerm.length < 2) {
+        return validItems; // Return full list if search term is less than 2 characters
       }
-      console.log(checkedItems);
+      
+      // Filter items based on name or email matching the search term
+      return validItems.filter(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
-    // Attach event listener for scroll to implement virtual scrolling
-    listContainer.addEventListener("scroll", renderVisibleItems);
+    // Step 3: Handle input event
+    const { result: validItems } = validateData(data); // Get validated items
+    const searchInput = document.getElementById('search-input');
+    const resultsContainer = document.getElementById('results');
 
-    // Attach event listener for checkbox state change
-    itemList.addEventListener("change", handleCheckboxChange);
+    searchInput.addEventListener('input', (event) => {
+      const searchTerm = event.target.value; // Get search term from input field
+      const filteredResults = searchItems(validItems, searchTerm); // Filter based on search
 
-    // Initial render
-    renderVisibleItems();
+      // Clear previous results
+      resultsContainer.innerHTML = '';
+
+      // Display filtered results
+      filteredResults.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Name: ${item.name}, Email: ${item.email}`;
+        resultsContainer.appendChild(listItem);
+      });
+    });
   </script>
+
+</body>
 </html>
