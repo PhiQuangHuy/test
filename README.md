@@ -154,3 +154,10 @@ dateRangeText: {
   }
 }
 
+searchForm: {
+  apiCallStartDate: [
+    this.$moment().add(-90, 'days').format('YYYY-MM-DD'),
+    this.$moment().format('YYYY-MM-DD')
+  ]
+}
+
