@@ -48,6 +48,12 @@
   </div>
 </v-menu>
 
+<date-multi-picker
+  v-model="searchForm.apiCallStartDate"
+  :id="'text-apiCallStartDate'"
+  :teleport="true"
+/>
+
 export default {
   data: function () {
     return {
