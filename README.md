@@ -141,3 +141,16 @@ export default {
   }
 }
 
+dateRangeText: {
+  get: function () {
+    const dateRange = this.searchForm.dates
+    dateRange.sort((a, b) => { return a >= b ? a === b ? 0 : 1 : -1 })
+    return dateRange.join(' ~ ')
+  },
+  set: function (value) {
+    if (!value) {
+      this.searchForm.dates = []
+    }
+  }
+}
+
