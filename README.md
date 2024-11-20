@@ -27,3 +27,7 @@ $('#select-all').on('change', function () {
     console.log('norArray:', norArray);
     console.log('newArray:', newArray);
 });
+
+Please check the following 2 issues:
+1, API sendMsgDetails still not remove email mask current update screen not working
+2, API to search user not working when token expires
